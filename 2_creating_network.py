@@ -31,6 +31,9 @@ from os.path import join
 
 import tensorflow.keras.backend as K
 K.set_image_data_format('channels_last')
+
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
 #%%
 
 def identity_block(X, f, filters, stage, block):
@@ -222,7 +225,7 @@ def DeepLens(input_shape = (44, 44, 1), classes = 2):
 from numpy.random import default_rng
 from sklearn.model_selection import train_test_split
 
-export_path="/home/javier/myGitStuff/CMUDeepLensOnUsedData/Data"
+export_path="../CMUDeepLensOnUsedData/Data"
 # Loads the table created in the previous section
 d = Table.read(join(export_path,'CFIS_training_data.hdf5')) #Data Elodie used to train the original network.
 
@@ -235,8 +238,8 @@ X = np.array(d['image'])[numbers].reshape((-1,size,size,1))
 y = np.array(d['classification'])[numbers].reshape((-1,1))
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
-# X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15)
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.9)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15)
+# X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.9)
 
 X_train = (X_train - np.mean(X_train)) / np.std(X_train)
 X_val = (X_val - np.mean(X_val)) / np.std(X_val)
@@ -253,7 +256,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import metrics
 model = DeepLens(input_shape = (44, 44, 1), classes = 1)
 
-epochs=20
+epochs=100
 epochs_drop = epochs//4
 # epochs_drop = 40
 def scheduler(epoch):
@@ -290,6 +293,9 @@ history = model.fit(train_generator.flow(X_train,y_train,256),
           epochs = epochs)
 
 #%%
+
+model.save("exec0")
+
 preds = model.evaluate(X_test, y_test)
 print ("Loss = " + str(preds[0]))
 print ("Test Accuracy = " + str(preds[1]))

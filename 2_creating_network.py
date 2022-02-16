@@ -4,7 +4,7 @@
 Created on Mon Feb 14 01:16:30 2022
 
 @author: Javier Alejandro Acevedo Barroso
-Very heavily inspired by
+Heavily based in
 https://github.com/marcopeix/Deep_Learning_AI/blob/master/4.Convolutional%20Neural%20Networks/2.Deep%20Convolutional%20Models/Residual%20Networks.ipynb
 """
 
@@ -115,50 +115,7 @@ def convolutional_block(X, f, filters, stage, block, s=2):
     return X
 
 #%%
-def resnet_block(X, f, filters, stage, block, s=2):
 
-    # Defining name basis
-    conv_name_base = 'res' + str(stage) + block + '_branch'
-    bn_name_base = 'bn' + str(stage) + block + '_branch'
-
-    # Retrieve Filters
-    F1, F2, F3 = filters
-
-    # Save the input value
-    X_shortcut = X
-
-    ##### MAIN PATH #####
-    # First component of main path 
-    X = Conv2D(filters=F1, kernel_size=(1, 1), strides=(s, s), 
-               padding='valid', name=conv_name_base + '2a',
-               kernel_initializer=glorot_uniform(seed=0))(X)
-    X = BatchNormalization(axis=3, name=bn_name_base + '2a')(X)
-    X = Activation('elu')(X)
-    
-    # Second component of main path
-    X = Conv2D(filters=F2, kernel_size=(f, f), strides=(1, 1),
-               padding='same', name=conv_name_base + '2b',
-               kernel_initializer=glorot_uniform(seed=0))(X)
-    X = BatchNormalization(axis=3, name=bn_name_base + '2b')(X)
-    X = Activation('elu')(X)
-
-
-    # Third component of main path
-    X = Conv2D(filters=F3, kernel_size=(1, 1), strides=(1, 1),
-               padding='valid', name=conv_name_base + '2c',
-               kernel_initializer=glorot_uniform(seed=0))(X)
-    X = BatchNormalization(axis=3, name=bn_name_base + '2c')(X)
-
-    ##### SHORTCUT PATH #### 
-    X_shortcut = Conv2D(filters=F3, kernel_size=(1, 1), strides=(s, s), padding='valid', name=conv_name_base + '1', kernel_initializer=glorot_uniform(seed=0))(X_shortcut)
-    X_shortcut = BatchNormalization(axis=3, name=bn_name_base + '1')(X_shortcut)
-
-    # Final step: Add shortcut value to main path, and pass it through a RELU activation
-    X = Add()([X, X_shortcut])
-    X = Activation('elu')(X)
-
-    
-    return X
 #%%
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 def DeepLens(input_shape = (44, 44, 1), classes = 2):
@@ -170,7 +127,7 @@ def DeepLens(input_shape = (44, 44, 1), classes = 2):
     X = ZeroPadding2D((3, 3))(X_input)
     
     # Stage 1
-    # The Theano original implementation had sqrt(12/(in+out)), here is not 12 but 6.
+    # The Theano original implementation had sqrt(12/(in+out)) for the range of the initialization distribution, here is not 12 but 6.
     X = Conv2D(32, (7, 7), strides = (2, 2), name = 'conv1',
                kernel_initializer = glorot_uniform(seed=0))(X) 
     X = BatchNormalization(axis = 3, name = 'bn_conv1')(X)
@@ -191,22 +148,22 @@ def DeepLens(input_shape = (44, 44, 1), classes = 2):
     # Stage 4
     X = convolutional_block(X, f=3, filters=[64, 64, 128],
                             stage=4, block='a', s=2)
-    X = identity_block(X, 4, [64, 64, 128], stage=4, block='b')
-    X = identity_block(X, 4, [64, 64, 128], stage=4, block='c')
+    X = identity_block(X, 3, [64, 64, 128], stage=4, block='b')
+    X = identity_block(X, 3, [64, 64, 128], stage=4, block='c')
     
     # Stage 5
     filters = [128, 128, 256]
     X = convolutional_block(X, f=3, filters=filters,
                             stage=5, block='a', s=2)
-    X = identity_block(X, 4, filters, stage=5, block='b')
-    X = identity_block(X, 4, filters, stage=5, block='c')
+    X = identity_block(X, 3, filters, stage=5, block='b')
+    X = identity_block(X, 3, filters, stage=5, block='c')
     
     # Stage 6
     filters = [256, 256, 512]
     X = convolutional_block(X, f=3, filters=filters,
                             stage=6, block='a', s=2)
-    X = identity_block(X, 4, filters, stage=6, block='b')
-    X = identity_block(X, 4, filters, stage=6, block='c')
+    X = identity_block(X, 3, filters, stage=6, block='b')
+    X = identity_block(X, 3, filters, stage=6, block='c')
 
     # AVGPOOL
     X = AveragePooling2D(pool_size=(2,2), padding='same')(X)
@@ -254,7 +211,7 @@ print ("Y_test shape: " + str(y_test.shape))
 from tensorflow.nn import weighted_cross_entropy_with_logits 
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import metrics
-model = DeepLens(input_shape = (44, 44, 1), classes = 1)
+model = DeepLens(input_shape = (44, 44, 1), classes = 2)
 
 epochs=100
 epochs_drop = epochs//4
@@ -299,3 +256,4 @@ model.save("exec0")
 preds = model.evaluate(X_test, y_test)
 print ("Loss = " + str(preds[0]))
 print ("Test Accuracy = " + str(preds[1]))
+print (preds)

@@ -35,7 +35,7 @@ if len(sys.argv) > 1:
     print("random seed:",sys.argv[1])
     random_seed=int(sys.argv[1])
 else:
-    random_seed=9
+    random_seed=99
 
 #%%
 X_train, X_test, y_train, y_test, prevalence = load_data(random_seed=random_seed)
@@ -44,8 +44,8 @@ X_train, X_test, y_train, y_test, prevalence = load_data(random_seed=random_seed
 model = DeepLens(input_shape = (44, 44, 1), classes = 2)
 
 epochs=100
-epochs_drop = epochs//4
-# epochs_drop = 40
+epochs_drop = epochs//5
+# epochs_drop = 10
 def scheduler(epoch):
    initial_lrate = 0.001
    drop = 0.1
@@ -53,7 +53,7 @@ def scheduler(epoch):
    return lrate
 
 
-callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
+callback = tf.keras.callbacks.LearningRateScheduler(scheduler,verbose=1)
 
 model.compile(optimizer=Adam(),
                loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
@@ -80,7 +80,7 @@ history = model.fit(train_generator.flow(X_train,y_train,256),
 
 # %%
 
-model.save("model" + str(random_seed))
+model.save("Models/model" + str(random_seed))
 
 preds = model.evaluate(X_test, y_test)
 print ("Loss = " + str(preds[0]))

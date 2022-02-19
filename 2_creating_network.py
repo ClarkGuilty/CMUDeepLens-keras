@@ -11,22 +11,14 @@ https://github.com/marcopeix/Deep_Learning_AI/blob/master/4.Convolutional%20Neur
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from tensorflow.keras import layers
 from tensorflow.keras.layers import Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D
 from tensorflow.keras.models import Model, load_model
-from tensorflow.keras.preprocessing import image
-# from tensorflow.keras.utils import layer_utils
-# from tensorflow.keras.utils.data_utils import get_file
-from tensorflow.keras.applications.imagenet_utils import preprocess_input
-# from tensorflow.keras.utils.vis_utils import model_to_dot
-# from tensorflow.keras.utils import plot_model
 import tensorflow as tf
 from tensorflow.keras.initializers import glorot_uniform
-# import scipy.misc
-from tensorflow.keras.losses import BinaryCrossentropy
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 
 from astropy.table import Table
-from astropy.io import fits
 from os.path import join
 
 import tensorflow.keras.backend as K
@@ -115,9 +107,6 @@ def convolutional_block(X, f, filters, stage, block, s=2):
     return X
 
 #%%
-
-#%%
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 def DeepLens(input_shape = (44, 44, 1), classes = 2):
     
     # Define the input as a tensor with shape input_shape
@@ -208,7 +197,6 @@ print ("X_test shape: " + str(X_test.shape))
 print ("Y_test shape: " + str(y_test.shape))
 
 #%%
-from tensorflow.nn import weighted_cross_entropy_with_logits 
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import metrics
 model = DeepLens(input_shape = (44, 44, 1), classes = 2)

@@ -35,7 +35,7 @@ if len(sys.argv) > 1:
     print("random seed:",sys.argv[1])
     random_seed=int(sys.argv[1])
 else:
-    random_seed=1
+    random_seed=9
 
 #%%
 X_train, X_test, y_train, y_test, prevalence = load_data(random_seed=random_seed)
@@ -76,7 +76,7 @@ train_generator = ImageDataGenerator(rotation_range=0,
 history = model.fit(train_generator.flow(X_train,y_train,256),
           validation_data=(X_test,y_test),verbose=2,
           validation_freq=10, callbacks=[callback],
-          epochs = 2)
+          epochs = epochs)
 
 # %%
 

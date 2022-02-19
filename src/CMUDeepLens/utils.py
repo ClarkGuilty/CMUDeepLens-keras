@@ -8,6 +8,7 @@ def int_round(x):
     return int(np.round(x))
 
 #Based on resample_for_bootstrap by Elodie.
+#The minimum possible proportion is (no_train_samples - no_non_lenses)/no_train_samples.
 def train_test_split_with_prevalences(x,y,test_size=None, random_seed = None,
                                       shuffle = True, proportion = None):
     
@@ -15,11 +16,13 @@ def train_test_split_with_prevalences(x,y,test_size=None, random_seed = None,
         test_size = 1-0.7043 #Around 15000 in training set, depends on the proportion.
     
     rng = np.random.default_rng(seed=random_seed)
-    
+    no_train_samples = int_round((1-test_size) * len(y))
+    min_proportion = (no_train_samples - len(np.nonzero(y==0)[0])) / no_train_samples
     if proportion == None:
-        proportion = rng.uniform(0.2, 0.4,)
-        # proportion = 0.5
-    
+        proportion = rng.uniform(min_proportion, 0.4)
+    else:
+        if proportion < min_proportion:
+            raise ValueError("The minimum proportion allowed for that test_size is " + str(min_proportion))
     
     no_of_items = y.shape[0]
     
@@ -42,10 +45,11 @@ def train_test_split_with_prevalences(x,y,test_size=None, random_seed = None,
 # # print( train_test_split_with_prevalences(X,y, random_seed=1, test_size=test_size))
 # X_train, X_test, y_train, y_test, prevalence = train_test_split_with_prevalences(X,y, random_seed=1, test_size=test_size)
 # rng = np.random.default_rng(seed=1)
-#%%
 
-# lens_ii = rng.choice(np.nonzero(y.reshape(-1))[0] , 6000,replace=False)
-# nonlens_ii = rng.choice(np.nonzero(y.reshape(-1) == 0)[0] , 9000, replace=False)
+
+#%%
+# lens_ii = rng.choice(np.nonzero(y.reshape(-1))[0] , 3000,replace=False)
+# nonlens_ii = rng.choice(np.nonzero(y.reshape(-1) == 0)[0] , 12000, replace=False)
 # train_ii = np.concatenate((lens_ii,nonlens_ii))
 # len(train_ii)
 # rng.shuffle(train_ii)

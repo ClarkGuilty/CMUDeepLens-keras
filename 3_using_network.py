@@ -38,7 +38,8 @@ else:
     random_seed=99
 
 #%%
-X_train, X_test, y_train, y_test, prevalence = load_data(random_seed=random_seed)
+# X_train, X_test, y_train, y_test, prevalence = load_data(random_seed=random_seed)
+X_train, X_test, X_val, y_train, y_test, y_val, prevalence = load_data(random_seed=random_seed)
 
 #%%
 model = DeepLens(input_shape = (44, 44, 1), classes = 2)
@@ -74,7 +75,7 @@ train_generator = ImageDataGenerator(rotation_range=0,
 
 #%%
 history = model.fit(train_generator.flow(X_train,y_train,256),
-          validation_data=(X_test,y_test),verbose=2,
+          validation_data=(X_val,y_val),verbose=2,
           validation_freq=10, callbacks=[callback],
           epochs = epochs)
 

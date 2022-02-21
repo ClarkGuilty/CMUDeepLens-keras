@@ -1,0 +1,6 @@
+src/CMUDeepLens/__pycache__/
+Data
+tests
+pyproject.toml
+setup*
+

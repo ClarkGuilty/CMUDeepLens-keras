@@ -4,7 +4,7 @@ from astropy.table import Table
 import numpy as np
 
 from sklearn.model_selection import train_test_split
-
+import tensorflow as tf
 
 def int_round(x):
     return int(np.round(x))
@@ -112,7 +112,7 @@ def load_data(data_path="../CMUDeepLensOnUsedData/Data",
               random_seed = 1):
 
     # Loads the table created in the previous section
-    d = Table.read(join(data_path,'CFIS_training_data.hdf5')) #Data Elodie used to train the original network.
+    d = Table.read(join(data_path,data_file)) #Data Elodie used to train the original network.
 
     size = 44
 
@@ -135,3 +135,36 @@ def load_data(data_path="../CMUDeepLensOnUsedData/Data",
     print ("X_test shape: " + str(X_test.shape))
     print ("Y_test shape: " + str(y_test.shape))
     return X_train, X_test, X_val, y_train, y_test, y_val, prevalence
+
+
+#%%
+def load_target_data(data_path="../CMUDeepLensOnUsedData/Data", 
+              data_file='CFIS_real_data_0.hdf5'):
+    
+    # Loads the table created in the previous section
+    X = Table.read(join(data_path,data_file)) #Data Elodie used to train the original network.
+
+    size = 44
+    names = X['name']
+    X = np.array(X['image']).reshape((-1,size,size,1))
+    
+    # y = np.array(d['classification']).reshape((-1,1))
+
+
+    X = (X - np.mean(X)) / np.std(X)
+
+    return X, names
+
+def load_model(model_number,
+              data_path="Models",
+              models_name_base = "model"):
+    
+    model = tf.keras.models.load_model(join(data_path,models_name_base)+str(model_number))
+    
+    return model
+
+
+
+
+
+

@@ -1,2 +1,3 @@
-setup
-
+CMUDeepLens/__pycache__/
+.vscode
+CMUDeepLens_keras.egg-info/

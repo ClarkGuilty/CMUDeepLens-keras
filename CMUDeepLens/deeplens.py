@@ -18,17 +18,23 @@ def identity_block(X, f, filters, stage, block):
     X_shortcut = X
     
     # First component of main path
-    X = Conv2D(filters = F1, kernel_size = (1, 1), strides = (1,1), padding = 'valid', name = conv_name_base + '2a', kernel_initializer = glorot_uniform(seed=0))(X)
+    X = Conv2D(filters = F1, kernel_size = (1, 1), strides = (1,1),
+               padding = 'valid', name = conv_name_base + '2a',
+               kernel_initializer = glorot_uniform(seed=0))(X)
     X = BatchNormalization(axis = 3, name = bn_name_base + '2a')(X)
     X = Activation('elu')(X)
     
     # Second component of main path
-    X = Conv2D(filters = F2, kernel_size = (f, f), strides = (1, 1), padding = 'same', name = conv_name_base + '2b', kernel_initializer = glorot_uniform(seed=0))(X)
+    X = Conv2D(filters = F2, kernel_size = (f, f), strides = (1, 1),
+               padding = 'same', name = conv_name_base + '2b',
+               kernel_initializer = glorot_uniform(seed=0))(X)
     X = BatchNormalization(axis = 3, name = bn_name_base + '2b')(X)
     X = Activation('elu')(X)
 
     # Third component of main path 
-    X = Conv2D(filters = F3, kernel_size = (1, 1), strides = (1, 1), padding = 'valid', name = conv_name_base + '2c', kernel_initializer = glorot_uniform(seed=0))(X)
+    X = Conv2D(filters = F3, kernel_size = (1, 1), strides = (1, 1),
+               padding = 'valid', name = conv_name_base + '2c',
+               kernel_initializer = glorot_uniform(seed=0))(X)
     X = BatchNormalization(axis = 3, name = bn_name_base + '2c')(X)
 
     # Final step: Add shortcut value to main path, and pass it through a RELU activation
@@ -73,8 +79,10 @@ def convolutional_block(X, f, filters, stage, block, s=2):
     X = BatchNormalization(axis=3, name=bn_name_base + '2c')(X)
 
     ##### SHORTCUT PATH #### 
-    X_shortcut = Conv2D(filters=F3, kernel_size=(1, 1), strides=(s, s), padding='valid', name=conv_name_base + '1', kernel_initializer=glorot_uniform(seed=0))(X_shortcut)
-    X_shortcut = BatchNormalization(axis=3, name=bn_name_base + '1')(X_shortcut)
+    X_shortcut = Conv2D(filters=F3, kernel_size=(1, 1), strides=(s, s),
+                        padding='valid', name=conv_name_base + '1',
+                        kernel_initializer=glorot_uniform(seed=0))(X_shortcut)
+    X_shortcut = BatchNormalization(axis=3, name=bn_name_base+'1')(X_shortcut)
 
     # Final step: Add shortcut value to main path, and pass it through a RELU activation
     X = Add()([X, X_shortcut])
@@ -94,7 +102,7 @@ def DeepLens(input_shape = (44, 44, 1), classes = 2):
     
     # Stage 1
     # The Theano original implementation had sqrt(12/(in+out)) for the range of the initialization distribution, here is not 12 but 6.
-    X = Conv2D(32, (7, 7), strides = (2, 2), name = 'conv1',
+    X = Conv2D(32, (7, 7), strides = (1, 1), name = 'conv1',
                kernel_initializer = glorot_uniform(seed=0))(X) 
     X = BatchNormalization(axis = 3, name = 'bn_conv1')(X)
     X = Activation('elu')(X)
@@ -136,7 +144,8 @@ def DeepLens(input_shape = (44, 44, 1), classes = 2):
 
     # Output layer
     X = Flatten()(X)
-    X = Dense(1, activation='sigmoid', name='fc' + str(classes), kernel_initializer = glorot_uniform(seed=0))(X)
+    X = Dense(1, activation='sigmoid', name='fc' + str(classes), 
+              kernel_initializer = glorot_uniform(seed=0))(X)
     
     
     # Create model

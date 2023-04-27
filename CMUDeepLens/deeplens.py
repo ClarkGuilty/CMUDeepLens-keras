@@ -4,8 +4,8 @@ from tensorflow.keras.layers import (Input, Add, Dense, Activation,
                                      MaxPooling2D,GlobalAveragePooling2D)
 
 from tensorflow.keras.models import Model
-import tensorflow as tf
-from tensorflow.keras.initializers import glorot_uniform, he_uniform , he_normal
+# import tensorflow as tf
+from tensorflow.keras.initializers import glorot_uniform , he_normal
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import set_random_seed
 
@@ -25,7 +25,7 @@ def CMUDeepLens_resnet_block(X_input, f, filters, stage, block,
         X_in = BatchNormalization(axis = 3, name = name_base + 'add_bn')(X_input)
         X_in = Activation('elu',name=name_base+'_add_actv')(X_in)
 
-    if X_input.shape[-1] != F3:
+    if X_input.shape[-1] != F3 and not downsample:
         print("increase_dims == True",X_input.shape, filters)
      
     stride = 2 if downsample else 1
@@ -60,7 +60,6 @@ def CMUDeepLens_resnet_block(X_input, f, filters, stage, block,
 
 #%%
 def DeepLens(input_shape = (45, 45, 1), classes = 2, seed = None):
-
     if seed is not None:
         set_random_seed(seed)
 
@@ -70,7 +69,7 @@ def DeepLens(input_shape = (45, 45, 1), classes = 2, seed = None):
     # Stage 1
     # The Theano original implementation had sqrt(12/(in+out)) for the range of the initialization distribution, here is not 12 but 6.
     X = Conv2D(32, 7, strides = 1, name = 'conv1', padding='same',
-                   kernel_initializer = glorot_uniform() )(X_input)
+                   kernel_initializer = glorot_uniform(), use_bias = False)(X_input)
     X = BatchNormalization(axis = 3, name = 'bn_conv1')(X)
     X = Activation('elu')(X)
     # X = MaxPooling2D((3, 3), strides=(2, 2))(X) # Turns out, CMUDeepLens does not use a MaxPool at the begining.
@@ -112,7 +111,7 @@ def DeepLens(input_shape = (45, 45, 1), classes = 2, seed = None):
     # Output layer
     X = Flatten()(X)
     X = Dense(1, activation='sigmoid', name='fc' + str(classes), 
-              kernel_initializer = glorot_uniform(seed=0))(X)
+              kernel_initializer = glorot_uniform())(X)
     
     
     # Create model

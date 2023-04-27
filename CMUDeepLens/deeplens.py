@@ -7,7 +7,7 @@ from tensorflow.keras.models import Model
 # import tensorflow as tf
 from tensorflow.keras.initializers import glorot_uniform , he_normal
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.utils import set_random_seed
+# from tensorflow.keras.utils import set_random_seed # Not in my tensorflow version.
 
 
 #%%
@@ -54,14 +54,14 @@ def CMUDeepLens_resnet_block(X_input, f, filters, stage, block,
     else:
         X_shortcut = X_input
 
-    X = Add()([X, X_shortcut])
+    X = Add(name=name_base + 'add')([X, X_shortcut])
 
     return X
 
 #%%
 def DeepLens(input_shape = (45, 45, 1), classes = 2, seed = None):
-    if seed is not None:
-        set_random_seed(seed)
+#    if seed is not None:
+#        set_random_seed(seed)
 
     # Define the input as a tensor with shape input_shape
     X_input = Input(input_shape)
@@ -71,7 +71,7 @@ def DeepLens(input_shape = (45, 45, 1), classes = 2, seed = None):
     X = Conv2D(32, 7, strides = 1, name = 'conv1', padding='same',
                    kernel_initializer = glorot_uniform(), use_bias = False)(X_input)
     X = BatchNormalization(axis = 3, name = 'bn_conv1')(X)
-    X = Activation('elu')(X)
+    X = Activation('elu',name='actv_conv1')(X)
     # X = MaxPooling2D((3, 3), strides=(2, 2))(X) # Turns out, CMUDeepLens does not use a MaxPool at the begining.
 
     # Stage 2
@@ -109,10 +109,11 @@ def DeepLens(input_shape = (45, 45, 1), classes = 2, seed = None):
     # X = AveragePooling2D(pool_size=(2,2), padding='same')(X)
     X = GlobalAveragePooling2D(data_format='channels_last', name="globalAveragePool")(X)
     # Output layer
-    X = Flatten()(X)
+    # X = Flatten()(X) #Already done by the GlobalAveragePooling2D
+
     X = Dense(1, activation='sigmoid', name='fc' + str(classes), 
-              kernel_initializer = glorot_uniform())(X)
-    
+              kernel_initializer = glorot_uniform())(X) 
+    X = Activation('sigmoid',name='actv_fc'+str(classes))(X)
     
     # Create model
     model = Model(inputs = X_input, outputs = X, name='CMUDeepLens')

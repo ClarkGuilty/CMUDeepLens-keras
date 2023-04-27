@@ -111,7 +111,7 @@ def DeepLens(input_shape = (45, 45, 1), classes = 2, seed = None):
     # Output layer
     # X = Flatten()(X) #Already done by the GlobalAveragePooling2D
 
-    X = Dense(1, activation='sigmoid', name='fc' + str(classes), 
+    X = Dense(1, name='fc' + str(classes), 
               kernel_initializer = glorot_uniform())(X) 
     X = Activation('sigmoid',name='actv_fc'+str(classes))(X)
     
